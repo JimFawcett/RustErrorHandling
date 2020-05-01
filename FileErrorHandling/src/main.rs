@@ -9,32 +9,26 @@ use std::fs::{File};
 use std::io::prelude::*;
 
 #[allow(dead_code)]
-struct FileOptions { 
-    create:u8, append:u8, read:u8, write:u8, 
-}
-impl Default for FileOptions {
-  fn default() -> Self {
-      Self {
-          create:1, append:2, read:4, write:8, 
-      }
-  }
+struct FileOption;
+impl FileOption {
+    const CREATE:u8 = 1; const APPEND:u8 = 2; 
+    const READ:u8 = 4; const WRITE:u8 = 8;
 }
 
 fn open_file(file_name:&str, opt: u8) -> std::io::Result<File> {
     use std::fs::OpenOptions;
-   // use std::os::windows::prelude::*;
-    let fo = FileOptions::default();
     let mut f = OpenOptions::new();
-    if opt & fo.write != 0 {
+    type FO = FileOption;
+    if opt & FO::WRITE != 0 {
         f.write(true);
     }
-    if opt & fo.read != 0 {
+    if opt & FO::READ != 0 {
         f.read(true);
     }
-    if opt & fo.create != 0 {
+    if opt & FO::CREATE != 0 {
         f.create(true);
     }
-    if opt & fo.append != 0 {
+    if opt & FO::APPEND != 0 {
         f.append(true);
     }
     let rslt = f.open(file_name);
@@ -42,9 +36,10 @@ fn open_file(file_name:&str, opt: u8) -> std::io::Result<File> {
 }
 
 fn main() -> std::io::Result<()> {
+
     let fn1 = "file1.txt";
-    let fo = FileOptions::default();
-    let rslt = open_file(fn1, fo.write | fo.create | fo.append);
+    type FO = FileOption;
+    let rslt = open_file(fn1, FO::WRITE | FO::CREATE | FO::APPEND);
     if rslt.is_ok() {
         let mut f1 = rslt.unwrap();
         f1.write(b"abc")?;
@@ -55,7 +50,7 @@ fn main() -> std::io::Result<()> {
     }
 
     let fn2 = "does_not_exist.txt";
-    let rslt = open_file(fn2, fo.write | fo.append);
+    let rslt = open_file(fn2, FO::WRITE | FO::APPEND);
     if rslt.is_ok() {
         print!("\n  open {:?} no create succeeded", fn2);
     }
@@ -63,12 +58,6 @@ fn main() -> std::io::Result<()> {
         let error = rslt.unwrap_err();
         print!("\n  error: {:#?} {:?}", error.kind(), fn2);
     }
-    // match &rslt {
-    //     Ok(_file) => print!("\n  open {:?} no create succeeded", fn2),
-    //     Err(error) => print!("\n  error: {:#?} {:?}", error.kind(), fn2),
-    // }
-    
-    // https://www.cs.brandeis.edu/~cs146a/rust/doc-02-21-2015/std/io/enum.ErrorKind.html
     // https://blog.yoshuawuyts.com/error-handling-survey/
 
     println!("\n\n  That's all Folks!\n");

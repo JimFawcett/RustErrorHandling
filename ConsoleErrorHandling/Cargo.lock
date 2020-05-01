@@ -3,11 +3,4 @@
 [[package]]
 name = "console_error_handling"
 version = "0.1.0"
-dependencies = [
- "panic_cleanup 0.1.0",
-]
-
-[[package]]
-name = "panic_cleanup"
-version = "0.1.0"
 

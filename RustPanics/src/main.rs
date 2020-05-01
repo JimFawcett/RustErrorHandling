@@ -85,7 +85,6 @@ fn trap_panic_return<F: FnOnce() -> R + UnwindSafe, R>(f:F, name:&str) -> std::i
             return Ok(r.clone());
         },
         Err(_) => {
-            //print!("{} paniced", name);
             let arg = format!("{:?} panic", name);
             let error = std::io::Error::new(ErrorKind::Other, arg);
             return Err(error);
