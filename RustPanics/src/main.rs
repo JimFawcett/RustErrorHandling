@@ -57,15 +57,21 @@ fn convert_string_to_int(s:&str) -> i32 {
 }
 /*-- traps panic, execution continues --*/
 #[allow(dead_code)]
-fn trap_panic(f:fn(), name:&str) {
+fn trap_panic(f:fn(), name:&str) -> std::io::Result<()> {
     let default_hook = panic::take_hook();
     set_panic_hook();
     let rslt = panic::catch_unwind(|| f());
-    match rslt {
-        Ok(()) => print!("{:?} {:?}","successful execution of", name),
-        Err(_) => print!("{} paniced", name)
-    }
     panic::set_hook(default_hook);
+    match rslt {
+        Ok(()) => {
+            return Ok(());
+        }
+        Err(_) => {
+            let arg = format!("{:?} panic", name);
+            let error = std::io::Error::new(ErrorKind::Other, arg);
+            return Err(error);
+        }
+    }
 }
 /*-------------------------------------------------
    traps panic, execution continues
@@ -96,6 +102,12 @@ fn trap_panic_return<F: FnOnce() -> R + UnwindSafe, R>(f:F, name:&str) -> std::i
 fn set_panic_hook() {
     panic::set_hook(Box::new(|_| print!("")));
 }
+fn show_result(r:std::io::Result<()>) {
+    match r {
+        Ok(()) => print!("\n  {}", "call succeeded"),
+        Err(error) => print!("\n  call failed: {}", error),
+    }
+}
 /*-------------------------------------------------
    tests some of the many ways to panic
    - view a case by uncommenting
@@ -103,24 +115,32 @@ fn set_panic_hook() {
 fn main() {
     print!("\n  {}","-- testing panics --");
     let _ = std::io::stdout().flush();
-    //do_panic();
-    //trap_panic(do_panic, "do_panic()");
-    //index_out_of_bounds();
-    //trap_panic(index_out_of_bounds, "index_out_of_bounds()");
-    //divide_by_zero();
-    //trap_panic(divide_by_zero, "divide_by_zero()");
-    //integer_overflow();
-    //trap_panic(integer_overflow, "integer_overflow");
-    //initialize_str_with_non_utf8();
+    // do_panic();
+    // let r = trap_panic(do_panic, "do_panic()");
+    // show_result(r);
+    // index_out_of_bounds();
+    let r = trap_panic(index_out_of_bounds, "index_out_of_bounds()");
+    show_result(r);
+    // divide_by_zero();
+    // let r = trap_panic(divide_by_zero, "divide_by_zero()");
+    // show_result(r);
+    // integer_overflow();
+    // let r = trap_panic(integer_overflow, "integer_overflow");
+    // show_result(r);
+    // initialize_str_with_non_utf8();
     // let fp = initialize_str_with_non_utf8;
-    // trap_panic(fp, "initialize_str_with_non_utf8");
-    // convert_string_to_int("3.5");
+    // let r = trap_panic(fp, "initialize_str_with_non_utf8");
+    // show_result(r);
+    
     // --------------------------------------------
     // trap panic for string to int conversion
+    // uses return computed value
+    // --------------------------------------------
     let s = String::from("-3");
-    //let s = String::from("-3.5");
+    // let s = String::from("-3.5");
     let l = || -> i32 { convert_string_to_int(&s) };
     let name = "convert_string_to_int";
+    print!("\n  ");
     let rslt = trap_panic_return(l, name);
     if rslt.is_ok() {
         print!("\n  {:?}\n  returned {}", name, rslt.unwrap());
