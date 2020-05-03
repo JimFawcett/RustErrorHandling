@@ -61,11 +61,10 @@ fn main() -> Result<()> {
     /////////////////////////////////////////////////////////
     // Using _invalid in code below panics at write_all, 
     // never returns Result.
-    //   That is a bug in std::io::stdout() for Windows
     //-------------------------------------------------------
     print!("\n\n  --- testing write result ---\n");
-    let _valid = &[0x61, 0x62, 0x63];
-    let _invalid = &[0xED, 0xA0, 0x80];
+    let _valid = &[0x61, 0x62, 0x63];    // valid utf-8 byte sequence
+    let _invalid = &[0xED, 0xA0, 0x80];  // invalid utf-8 byte sequence
     std::io::stdout().write(b"\n  writing: ")?;
     let arg = _valid;  
     // setting arg = _invalid
