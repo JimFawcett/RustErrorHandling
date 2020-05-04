@@ -13,6 +13,7 @@ use std::panic::*;
 use std::io::*;
 use std::fmt::*;
 
+#[allow()]
 /*-- panics in both debug and release builds --*/
 #[allow(dead_code)]
 fn index_out_of_bounds() {
@@ -27,7 +28,7 @@ fn integer_overflow() {
     let mut i:u8 = 255;
     print!("\n  i:u8 = {}", i);
     print!("\n  ");
-    i = i+1;
+    i += 1;
     print!("i:u8 = {}\n  ", i);
 }
 /*-- panics in both debug and release builds --*/
@@ -60,16 +61,16 @@ fn convert_string_to_int(s:&str) -> i32 {
 fn trap_panic(f:fn(), name:&str) -> std::io::Result<()> {
     let default_hook = panic::take_hook();
     set_panic_hook();
-    let rslt = panic::catch_unwind(|| f());
+    let rslt = panic::catch_unwind(|| { f() });
     panic::set_hook(default_hook);
     match rslt {
         Ok(()) => {
-            return Ok(());
+            Ok(())
         }
         Err(_) => {
             let arg = format!("{:?} panic", name);
             let error = std::io::Error::new(ErrorKind::Other, arg);
-            return Err(error);
+            Err(error)
         }
     }
 }
@@ -88,12 +89,12 @@ fn trap_panic_return<F: FnOnce() -> R + UnwindSafe, R>(f:F, name:&str) -> std::i
     panic::set_hook(default_hook);
     match &rslt {
         Ok(r) => {
-            return Ok(r.clone());
+            Ok(r.clone())
         },
         Err(_) => {
             let arg = format!("{:?} panic", name);
             let error = std::io::Error::new(ErrorKind::Other, arg);
-            return Err(error);
+            Err(error)
         }
     }
 }
@@ -104,7 +105,7 @@ fn set_panic_hook() {
 }
 fn show_result(r:std::io::Result<()>) {
     match r {
-        Ok(()) => print!("\n  {}", "call succeeded"),
+        Ok(()) => print!("\n  {}", &"call succeeded"),
         Err(error) => print!("\n  call failed: {}", error),
     }
 }
@@ -113,7 +114,7 @@ fn show_result(r:std::io::Result<()>) {
    - view a case by uncommenting
 */
 fn main() {
-    print!("\n  {}","-- testing panics --");
+    print!("\n  {}",&"-- testing panics --");
     let _ = std::io::stdout().flush();
     // do_panic();
     // let r = trap_panic(do_panic, "do_panic()");
