@@ -4,6 +4,7 @@
 // Jim Fawcett, https://JimFawcett.github.io, 25 Apr 2020  //
 /////////////////////////////////////////////////////////////
  
+#![allow(clippy::unnecessary_unwrap)]
 #[allow(unused_imports)]
 use std::fs::{File};
 use std::io::prelude::*;
@@ -31,8 +32,7 @@ fn open_file(file_name:&str, opt: u8) -> std::io::Result<File> {
     if opt & FO::APPEND != 0 {
         f.append(true);
     }
-    let rslt = f.open(file_name);
-    rslt
+    f.open(file_name)
 }
 
 fn main() -> std::io::Result<()> {
@@ -42,7 +42,7 @@ fn main() -> std::io::Result<()> {
     let rslt = open_file(fn1, FO::WRITE | FO::CREATE | FO::APPEND);
     if rslt.is_ok() {
         let mut f1 = rslt.unwrap();
-        f1.write(b"abc")?;
+        f1.write_all(b"abc")?;
         print!("\n  open and write {:?} succeeded", fn1);
     }
     else {

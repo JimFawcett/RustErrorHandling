@@ -4,6 +4,7 @@
 // Jim Fawcett, https://JimFawcett.github.io, 30 Apr 2020  //
 /////////////////////////////////////////////////////////////
  
+#![allow(clippy::needless_range_loop)]
 use std::io::*;
 
 fn main() {

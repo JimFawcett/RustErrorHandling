@@ -6,6 +6,7 @@
  
 // https://users.rust-lang.org/t/how-to-get-user-input/5176/2
 
+#![allow(clippy::unnecessary_unwrap)]
 use std::panic;
 use std::io::*;
 /*-- traps panic, execution continues --*/
@@ -65,7 +66,7 @@ fn main() -> Result<()> {
     print!("\n\n  --- testing write result ---\n");
     let _valid = &[0x61, 0x62, 0x63];    // valid utf-8 byte sequence
     let _invalid = &[0xED, 0xA0, 0x80];  // invalid utf-8 byte sequence
-    std::io::stdout().write(b"\n  writing: ")?;
+    std::io::stdout().write_all(b"\n  writing: ")?;
     let arg = _valid;  
     // setting arg = _invalid
     // results in untrappable panic, e.g., panic while 
